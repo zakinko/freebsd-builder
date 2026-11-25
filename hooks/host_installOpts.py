@@ -32,8 +32,8 @@ log("freebsd installOpts: host pubkey = %s..." % _HOST_PUBKEY[:60])
 # it over SLIRP (http://192.168.122.1:8000/...) without needing DNS.
 # build.py's startWeb() already runs python3 -m http.server in cwd; we
 # just need the files to be in cwd. Skip files already present so reruns
-# don't re-download. Targets are powerpc64 -- update when the conf
-# changes arch / release.
+# don't re-download. The sets must match the ISO's byte order, so the path
+# follows VM_ARCH (powerpc64, or ppc64le for FreeBSD's powerpc64le).
 #
 # The dist directory defaults to "<release>-RELEASE" but is overridable
 # via VM_FBSD_DIST_DIR for pre-release images whose distfiles live in a
@@ -44,7 +44,8 @@ log("freebsd installOpts: host pubkey = %s..." % _HOST_PUBKEY[:60])
 # A variant release ("15.1-zfs") installs the same media as its plain
 # release, so only the version before the first "-" names the directory.
 _FBSD_REL = (env("VM_RELEASE") or "15.0").split("-")[0]
-_FBSD_ARCH_PATH = "powerpc/powerpc64"
+_FBSD_ARCH_PATH = ("powerpc/powerpc64le" if env("VM_ARCH") == "ppc64le"
+                   else "powerpc/powerpc64")
 _FBSD_DIST_DIR = env("VM_FBSD_DIST_DIR") or ("%s-RELEASE" % _FBSD_REL)
 # Choose the dist-set mirror at run time instead of hardcoding (or deriving it
 # from VM_ISO_LINK). FreeBSD serves CURRENT releases from
